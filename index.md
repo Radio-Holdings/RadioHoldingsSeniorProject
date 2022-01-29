@@ -6,7 +6,7 @@ The Voice Recognition Dialer is software that enables voice dialing (of a number
 
 
 
-[[/Gu1RX0aR_400x400.jpg | width=200px height=200px]]
+![RIT](/Gu1RX0aR_400x400.jpg)
 ## Team Members
 ### Sponsored by the RIT Amateur Radio Club
 **Project Manager:** Omar Dajani
