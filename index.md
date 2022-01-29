@@ -1,5 +1,5 @@
 # Voice Recognition Dialer
-by Radio Holdings
+### by Radio Holdings
 
 
 Software that enables voice dialing (of a number or a name via directory look up) to an All Star Link active node. The voice recognition will utilize Google's text to speech API to convert the command to a DTMF tone that the radio controller can interpret. The software will listen to an open node at all times in order to allow users of differing radio types to dial into other nodes without requiring memorization of their call numbers. In the long run, this will add a layer of safety to drivers utilizing radios, as well as provide a quality of life improvement for all users that connect to nodes that implement this software. 
