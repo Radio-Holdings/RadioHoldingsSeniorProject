@@ -8,9 +8,13 @@ The Voice Recognition Dialer is software that enables voice dialing (of a number
 ## Team Members
 ### Sponsored by the RIT Amateur Radio Club
 **Project Manager:** Omar Dajani
+
 **Scrum Master:** Sanchit Monga
+
 **Sponsor Communication Lead:** Logan Pelletier
+
 **Dev/ QA:** Lucas Alvarez
+
 **Coach:** Larry Kiser
 
 ## Time Tracking
