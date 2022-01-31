@@ -19,7 +19,7 @@ The Voice Recognition Dialer is software that enables voice dialing (of a number
 
 **Coach:** Larry Kiser
 
-**Primary Sponsor Contact:** James Stephano
+**Primary Sponsor Contact:** James Stefano
 
 ## Time Tracking
 View our time sheet [here](https://docs.google.com/spreadsheets/d/1Lnqk32d_9xXP44gIEWcwzGW2nCSgJFBdRosEsH-NEek/edit?usp=sharing)
