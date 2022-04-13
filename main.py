@@ -11,6 +11,8 @@ from dotenv import load_dotenv, find_dotenv
 
 
 class RhinoEngine(Thread):
+    """Intent Engine"""
+
     def __init__(
         self,
         access_key,
@@ -74,6 +76,7 @@ class RhinoEngine(Thread):
                 if is_finalized:
                     inference = rhino.get_inference()
                     if inference.is_understood:
+                        # Happy path
                         print("{")
                         print("  intent : '%s'" % inference.intent)
                         print("  slots : {")
@@ -81,8 +84,11 @@ class RhinoEngine(Thread):
                             print("    %s : '%s'" % (slot, value))
                         print("  }")
                         print("}\n")
+                        break
                     else:
+                        # Sad path
                         print("Didn't understand the command.\n")
+                        break
         except pvrhino.RhinoInvalidArgumentError as e:
             print(
                 "One or more arguments provided to Rhino is invalid: {\n"
@@ -129,6 +135,8 @@ class RhinoEngine(Thread):
 
 
 class WakeUpEngine(Thread):
+    """Wake up engine, calls rhino engine run when wake up word detected"""
+
     def __init__(
         self,
         access_key,
@@ -136,6 +144,7 @@ class WakeUpEngine(Thread):
         model_path,
         keyword_paths,
         sensitivities,
+        rhino_engine,
         input_device_index=None,
         output_path=None,
     ):
@@ -149,6 +158,7 @@ class WakeUpEngine(Thread):
         self._input_device_index = input_device_index
 
         self._output_path = output_path
+        self._rhino_engine = rhino_engine
 
     def run(self):
         print(self._keyword_paths)
@@ -198,6 +208,11 @@ class WakeUpEngine(Thread):
                 result = porcupine.process(pcm)
                 if result >= 0:
                     print("[%s] Detected %s" % (str(datetime.now()), keywords[result]))
+                    recorder.stop()
+                    self._rhino_engine.run()
+                    recorder.start()
+                    print("Exited rhino, waiting for wakeup call")
+
         except pvporcupine.PorcupineInvalidArgumentError as e:
             print(
                 "One or more arguments provided to Porcupine is invalid: {\n"
@@ -243,37 +258,44 @@ class WakeUpEngine(Thread):
 
 
 def main():
+    """Creates the two engines and runs the wakeup engine
+
+    The rhino engine is passed into the wakeup engine and is called when
+    a wake up word is detected.
+    """
     # Load environment variables
     load_dotenv(find_dotenv())
+
+    # For both
     access_key = os.getenv("access_key")
-    model_path = pvporcupine.MODEL_PATH
+    audio_device_index = int(os.getenv("audio_device_index"))
+
+    # For WakeUpEngine
     keyword_paths = [os.getenv("keyword_paths")]
-    # keyword_paths = ["hey-pico_en_windows_v2_1_0.ppn"]
-    sensitivities = [0.5] * len(keyword_paths)
-    # library_path = pvporcupine.LIBRARY_PATH
-    output_path = None
-    audio_device_index = 1
+
+    # For RhinoEngine
     context_path = os.getenv("context_path")
+
+    rhino_engine = RhinoEngine(
+        access_key=access_key,
+        library_path=pvrhino.LIBRARY_PATH,
+        model_path=pvrhino.MODEL_PATH,
+        context_path=context_path,
+        require_endpoint=True,
+        audio_device_index=audio_device_index,
+        output_path=None,
+    )
 
     WakeUpEngine(
         access_key=access_key,
         library_path=pvporcupine.LIBRARY_PATH,
-        model_path=model_path,
+        model_path=pvporcupine.MODEL_PATH,
         keyword_paths=keyword_paths,
-        sensitivities=sensitivities,
-        output_path=output_path,
+        sensitivities=[0.5] * len(keyword_paths),
+        output_path=None,
         input_device_index=audio_device_index,
+        rhino_engine=rhino_engine,
     ).run()
-
-    # RhinoEngine(
-    #     access_key=access_key,
-    #     library_path=pvrhino.LIBRARY_PATH,
-    #     model_path=pvrhino.MODEL_PATH,
-    #     context_path=context_path,
-    #     require_endpoint=True,
-    #     audio_device_index=audio_device_index,
-    #     output_path=None,
-    # ).run()
 
 
 if __name__ == "__main__":
