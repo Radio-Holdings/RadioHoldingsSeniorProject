@@ -2,11 +2,130 @@ import os
 import struct
 import wave
 import pvporcupine
+import pvrhino
 from threading import Thread
 from datetime import datetime
 
 from pvrecorder import PvRecorder
 from dotenv import load_dotenv, find_dotenv
+
+
+class RhinoEngine(Thread):
+    def __init__(
+        self,
+        access_key,
+        library_path,
+        model_path,
+        context_path,
+        require_endpoint,
+        audio_device_index=None,
+        output_path=None,
+    ):
+
+        super(RhinoEngine, self).__init__()
+
+        self._access_key = access_key
+        self._library_path = library_path
+        self._model_path = model_path
+        self._context_path = context_path
+        self._require_endpoint = require_endpoint
+        self._audio_device_index = audio_device_index
+
+        self._output_path = output_path
+
+    def run(self):
+
+        rhino = None
+        recorder = None
+        wav_file = None
+
+        try:
+            rhino = pvrhino.create(
+                access_key=self._access_key,
+                library_path=self._library_path,
+                model_path=self._model_path,
+                context_path=self._context_path,
+                require_endpoint=self._require_endpoint,
+            )
+
+            recorder = PvRecorder(
+                device_index=self._audio_device_index, frame_length=rhino.frame_length
+            )
+            recorder.start()
+
+            if self._output_path is not None:
+                wav_file = wave.open(self._output_path, "w")
+                wav_file.setparams((1, 2, 16000, 512, "NONE", "NONE"))
+
+            print(rhino.context_info)
+            print()
+
+            print(f"Using device: {recorder.selected_device}")
+            print("Listening...")
+            print()
+
+            while True:
+                pcm = recorder.read()
+
+                if wav_file is not None:
+                    wav_file.writeframes(struct.pack("h" * len(pcm), *pcm))
+
+                is_finalized = rhino.process(pcm)
+                if is_finalized:
+                    inference = rhino.get_inference()
+                    if inference.is_understood:
+                        print("{")
+                        print("  intent : '%s'" % inference.intent)
+                        print("  slots : {")
+                        for slot, value in inference.slots.items():
+                            print("    %s : '%s'" % (slot, value))
+                        print("  }")
+                        print("}\n")
+                    else:
+                        print("Didn't understand the command.\n")
+        except pvrhino.RhinoInvalidArgumentError as e:
+            print(
+                "One or more arguments provided to Rhino is invalid: {\n"
+                + f"\t{self._access_key=}\n"
+                + f"\t{self._library_path=}\n"
+                + f"\t{self._model_path=}\n"
+                + f"\t{self._context_path=}\n"
+                + f"\t{self._require_endpoint=}\n"
+                + "}"
+            )
+            print(
+                f"If all other arguments seem valid, ensure that '{self._access_key}' is a valid AccessKey"
+            )
+            raise e
+        except pvrhino.RhinoActivationError as e:
+            print("AccessKey activation error")
+            raise e
+        except pvrhino.RhinoActivationLimitError as e:
+            print(
+                f"AccessKey '{self._access_key}' has reached it's temporary device limit"
+            )
+            raise e
+        except pvrhino.RhinoActivationRefusedError as e:
+            print(f"AccessKey '{self._access_key}' refused")
+            raise e
+        except pvrhino.RhinoActivationThrottledError as e:
+            print(f"AccessKey '{self._access_key}' has been throttled")
+            raise e
+        except pvrhino.RhinoError as e:
+            print(f"Failed to initialize Rhino")
+            raise e
+        except KeyboardInterrupt:
+            print("Stopping ...")
+
+        finally:
+            if recorder is not None:
+                recorder.delete()
+
+            if rhino is not None:
+                rhino.delete()
+
+            if wav_file is not None:
+                wav_file.close()
 
 
 class WakeUpEngine(Thread):
@@ -131,21 +250,30 @@ def main():
     keyword_paths = [os.getenv("keyword_paths")]
     # keyword_paths = ["hey-pico_en_windows_v2_1_0.ppn"]
     sensitivities = [0.5] * len(keyword_paths)
-    library_path = pvporcupine.LIBRARY_PATH
+    # library_path = pvporcupine.LIBRARY_PATH
     output_path = None
     audio_device_index = 1
-
-    # Try to make a porcupine instance
+    context_path = os.getenv("context_path")
 
     WakeUpEngine(
         access_key=access_key,
-        library_path=library_path,
+        library_path=pvporcupine.LIBRARY_PATH,
         model_path=model_path,
         keyword_paths=keyword_paths,
         sensitivities=sensitivities,
         output_path=output_path,
         input_device_index=audio_device_index,
     ).run()
+
+    # RhinoEngine(
+    #     access_key=access_key,
+    #     library_path=pvrhino.LIBRARY_PATH,
+    #     model_path=pvrhino.MODEL_PATH,
+    #     context_path=context_path,
+    #     require_endpoint=True,
+    #     audio_device_index=audio_device_index,
+    #     output_path=None,
+    # ).run()
 
 
 if __name__ == "__main__":
