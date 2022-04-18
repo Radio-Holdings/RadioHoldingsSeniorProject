@@ -61,8 +61,8 @@ class RhinoEngine(Thread):
                 wav_file = wave.open(self._output_path, "w")
                 wav_file.setparams((1, 2, 16000, 512, "NONE", "NONE"))
 
-            print(rhino.context_info)
-            print()
+            # print(rhino.context_info)
+            # print()
 
             print(f"Using device: {recorder.selected_device}")
             print("Listening...")

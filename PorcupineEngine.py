@@ -87,7 +87,7 @@ class WakeUpEngine(Thread):
                     recorder.stop()
                     self._rhino_engine.run()
                     recorder.start()
-                    print("Exited rhino, waiting for wakeup call")
+                    print("Leaving intent engine. Waiting for wakeup call...")
 
         except pvporcupine.PorcupineInvalidArgumentError as e:
             print(
