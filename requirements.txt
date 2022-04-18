@@ -1,0 +1,5 @@
+upvporcupine>=2.1.2
+pvrecorder>=1.0.2
+pvrhino>=2.1.2
+python-dotenv>=0.20.0
+tomli>=2.0.1
