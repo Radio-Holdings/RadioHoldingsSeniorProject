@@ -64,7 +64,7 @@ class RhinoEngine(Thread):
             # print(rhino.context_info)
             # print()
 
-            print(f"Using device: {recorder.selected_device}")
+            print("Using device: {}".format(recorder.selected_device))
             print("Listening...")
             print()
 
@@ -96,15 +96,17 @@ class RhinoEngine(Thread):
         except pvrhino.RhinoInvalidArgumentError as e:
             print(
                 "One or more arguments provided to Rhino is invalid: {\n"
-                + f"\t{self._access_key=}\n"
-                + f"\t{self._library_path=}\n"
-                + f"\t{self._model_path=}\n"
-                + f"\t{self._context_path=}\n"
-                + f"\t{self._require_endpoint=}\n"
+                + "\t{}\n".format(self._access_key)
+                + "\t{}\n".format(self._library_path)
+                + "\t{}\n".format(self._model_path)
+                + "\t{}\n".format(self._context_path)
+                + "\t{}\n".format(self._require_endpoint)
                 + "}"
             )
             print(
-                f"If all other arguments seem valid, ensure that '{self._access_key}' is a valid AccessKey"
+                "If all other arguments seem valid, ensure that '{}' is a valid AccessKey".format(
+                    self._access_key
+                )
             )
             raise e
         except pvrhino.RhinoActivationError as e:
@@ -112,17 +114,19 @@ class RhinoEngine(Thread):
             raise e
         except pvrhino.RhinoActivationLimitError as e:
             print(
-                f"AccessKey '{self._access_key}' has reached it's temporary device limit"
+                "AccessKey '{}' has reached it's temporary device limit".format(
+                    self._access_key
+                )
             )
             raise e
         except pvrhino.RhinoActivationRefusedError as e:
-            print(f"AccessKey '{self._access_key}' refused")
+            print("AccessKey '{}' refused".format(self._access_key))
             raise e
         except pvrhino.RhinoActivationThrottledError as e:
-            print(f"AccessKey '{self._access_key}' has been throttled")
+            print("AccessKey '{}' has been throttled".format(self._access_key))
             raise e
         except pvrhino.RhinoError as e:
-            print(f"Failed to initialize Rhino")
+            print("Failed to initialize Rhino")
             raise e
         except KeyboardInterrupt:
             print("Stopping ...")

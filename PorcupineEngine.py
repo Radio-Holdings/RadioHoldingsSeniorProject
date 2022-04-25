@@ -68,7 +68,7 @@ class WakeUpEngine(Thread):
                 wav_file = wave.open(self._output_path, "w")
                 wav_file.setparams((1, 2, 16000, 512, "NONE", "NONE"))
 
-            print(f"Using device: {recorder.selected_device}")
+            print("Using device: {}".format(recorder.selected_device))
 
             print("Listening {")
             for keyword, sensitivity in zip(keywords, self._sensitivities):
@@ -92,15 +92,17 @@ class WakeUpEngine(Thread):
         except pvporcupine.PorcupineInvalidArgumentError as e:
             print(
                 "One or more arguments provided to Porcupine is invalid: {\n"
-                + f"\t{self._access_key=}\n"
-                + f"\t{self._library_path=}\n"
-                + f"\t{self._model_path=}\n"
-                + f"\t{self._keyword_paths=}\n"
-                + f"\t{self._sensitivities=}\n"
+                + "\t{}\n".format(self._access_key)
+                + "\t{}\n".format(self._library_path)
+                + "\t{}\n".format(self._model_path)
+                + "\t{}\n".format(self._keyword_paths)
+                + "\t{}\n".format(self._sensitivities)
                 + "}"
             )
             print(
-                f"If all other arguments seem valid, ensure that '{self._access_key}' is a valid AccessKey"
+                "If all other arguments seem valid, ensure that '{}' is a valid AccessKey".format(
+                    self._access_key
+                )
             )
             raise e
         except pvporcupine.PorcupineActivationError as e:
@@ -108,17 +110,19 @@ class WakeUpEngine(Thread):
             raise e
         except pvporcupine.PorcupineActivationLimitError as e:
             print(
-                f"AccessKey '{self._access_key}' has reached it's temporary device limit"
+                "AccessKey '{}' has reached it's temporary device limit".format(
+                    self._access_key
+                )
             )
             raise e
         except pvporcupine.PorcupineActivationRefusedError as e:
-            print(f"AccessKey '{self._access_key}' refused")
+            print("AccessKey '{}' refused".format(self._access_key))
             raise e
         except pvporcupine.PorcupineActivationThrottledError as e:
-            print(f"AccessKey '{self._access_key}' has been throttled")
+            print("AccessKey '{}' has been throttled".format(self._access_key))
             raise e
         except pvporcupine.PorcupineError as e:
-            print(f"Failed to initialize Porcupine")
+            print("Failed to initialize Porcupine")
             raise e
         except KeyboardInterrupt:
             print("Stopping ...")
