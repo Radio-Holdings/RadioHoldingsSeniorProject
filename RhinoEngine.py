@@ -78,19 +78,16 @@ class RhinoEngine(Thread):
                 if is_finalized:
                     inference = rhino.get_inference()
                     if inference.is_understood:
-                        # Happy path
-                        match (inference.intent):
-                            case "connectToNode":
-                                connect_to_node(
-                                    int("".join(x for x in inference.slots.values()))
-                                )
-                            case "disconnectFromAll":
-                                print("".join(x for x in inference.slots.values()))
-                                disconnect_from_all_nodes()
-                            case "disconnectFromNode":
-                                disconnect_from_node(
-                                    int("".join(x for x in inference.slots.values()))
-                                )
+                        if inference.intent == "disconnectFromAll":
+                            disconnect_from_all_nodes()
+                        elif inference.intent == "connectToNode":
+                            connect_to_node(
+                                int("".join(x for x in inference.slots.values()))
+                            )
+                        elif inference.intent == "disconnectFromNode":
+                            disconnect_from_node(
+                                int("".join(x for x in inference.slots.values()))
+                            )
                         break
                     else:
                         # Sad path
