@@ -5,8 +5,10 @@ import pvporcupine
 import pvrhino
 from threading import Thread
 from datetime import datetime
+import pyaudio
+import wave
+import sys
 
-from pvrecorder import PvRecorder
 from dotenv import load_dotenv, find_dotenv
 
 from commands import *
@@ -52,10 +54,26 @@ class RhinoEngine(Thread):
                 require_endpoint=self._require_endpoint,
             )
 
-            recorder = PvRecorder(
-                device_index=self._audio_device_index, frame_length=rhino.frame_length
+            # recorder = PvRecorder(
+            #     device_index=self._audio_device_index, frame_length=rhino.frame_length
+            # )
+            # recorder.start()
+            CHUNK = 1024
+            WIDTH = 2
+            CHANNELS = 2
+            RATE = 44100
+            RECORD_SECONDS = 5
+
+            p = pyaudio.PyAudio()
+
+            stream = p.open(
+                format=p.get_format_from_width(WIDTH),
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                output=True,
+                frames_per_buffer=CHUNK,
             )
-            recorder.start()
 
             if self._output_path is not None:
                 wav_file = wave.open(self._output_path, "w")
@@ -69,12 +87,16 @@ class RhinoEngine(Thread):
             print()
 
             while True:
-                pcm = recorder.read()
+                for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+                    data = stream.read(CHUNK)
+                    stream.write(data, CHUNK)
 
-                if wav_file is not None:
-                    wav_file.writeframes(struct.pack("h" * len(pcm), *pcm))
+                # pcm = recorder.read()
 
-                is_finalized = rhino.process(pcm)
+                # if wav_file is not None:
+                #     wav_file.writeframes(struct.pack("h" * len(pcm), *pcm))
+
+                is_finalized = rhino.process(stream)
                 if is_finalized:
                     inference = rhino.get_inference()
                     if inference.is_understood:
