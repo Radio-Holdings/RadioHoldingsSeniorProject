@@ -1,5 +1,4 @@
 import os
-from pickle import TRUE
 import subprocess
 
 def main():
@@ -22,9 +21,9 @@ def main():
     """ 
     
     node_number = input("Enter the node number:")
-    command = "*3 "+node_number
+    command = "sudo asterisk -rx \"rpt fun 1999 *3"+node_number+"\""
     print("Command executed: ", command)
-    result = subprocess.run(command, capture_output=TRUE)
+    result = subprocess.run(command, capture_output=true)
     print("result from node connect command:")
     print(result.stdout.decode())
     print(result.stderr.decode())
