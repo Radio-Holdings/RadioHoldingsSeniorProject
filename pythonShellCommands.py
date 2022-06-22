@@ -19,14 +19,18 @@ def main():
     SYSTEM CONNECTION STATUS:
     *73
     """ 
-    
+    operation = input("Enter 1 to connect, 2 to disconnect: ")
     node_number = input("Enter the node number:")
-    command = "sudo asterisk -rx \"rpt fun 1999 *3"+node_number+"\""
-    print("Command executed: ", command)
-    result = subprocess.run(command, capture_output=true)
-    print("result from node connect command:")
-    print(result.stdout.decode())
-    print(result.stderr.decode())
+    if operation ==1:
+        command = "sudo asterisk -rx \"rpt fun 1999 *3{}\"".format(node_number)
+        print("Command executed: ", command)
+        os.system(command)
+    elif operation ==2:
+        command = "sudo asterisk -rx \"rpt fun 1999 *1{}\"".format(node_number)
+        print("Command executed: ", command)
+        os.system(command)
+    else:
+        print("please choose a valid option")
 
     # """
     # OS library examples
