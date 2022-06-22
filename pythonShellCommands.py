@@ -19,14 +19,30 @@ def main():
     SYSTEM CONNECTION STATUS:
     *73
     """ 
-    operation = input("Enter 1 to connect, 2 to disconnect: ")
+    operation = input("Enter 1 to connect, 2 to disconnect, 3 to announce the connection status, 4 to disconnect all the nodes, 5 to reconnect to all the previous links, 6 to get the system time: ")
     node_number = input("Enter the node number:")
-    if operation ==1:
+    if operation == 1:
         command = "sudo asterisk -rx \"rpt fun 1999 *3{}\"".format(node_number)
         print("Command executed: ", command)
         os.system(command)
-    elif operation ==2:
+    elif operation == 2:
         command = "sudo asterisk -rx \"rpt fun 1999 *1{}\"".format(node_number)
+        print("Command executed: ", command)
+        os.system(command)
+    elif operation == 3:
+        command = "sudo asterisk -rx \"rpt fun 1999 *73\""
+        print("Command executed: ", command)
+        os.system(command)
+    elif operation == 4:
+        command = "sudo asterisk -rx \"rpt fun 1999 *71\""
+        print("Command executed: ", command)
+        os.system(command)
+    elif operation == 5:
+        command = "sudo asterisk -rx \"rpt fun 1999 *74\""
+        print("Command executed: ", command)
+        os.system(command)
+    elif operation == 6:
+        command = "sudo asterisk -rx \"rpt fun 1999 *81\""
         print("Command executed: ", command)
         os.system(command)
     else:
