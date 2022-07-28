@@ -88,6 +88,12 @@ class RhinoEngine(Thread):
                             disconnect_from_node(
                                 int("".join(x for x in inference.slots.values()))
                             )
+                        elif inference.intent == "announceConnectionStatus":
+                            announce_connection_status()
+                        elif inference.intent == "announceSystemTime":
+                            announce_system_time()
+                        elif inference.intent == "reconnectAllPreviousLinks":
+                            reconnect_all_previous_links()
                         break
                     else:
                         # Sad path
